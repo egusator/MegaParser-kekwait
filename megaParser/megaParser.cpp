@@ -4,14 +4,30 @@
 #include <string>
 #include <string.h>
 #include <stdio.h>
+#include <algorithm>
 #include <map>
+#include <vector>
 using namespace std;
 #define bufferSize 1000
 int main(int argc, char **argv) {
 
 	map<string, int> amount;
 	map<string, int>::iterator it;
+	vector < pair <string, int> > forSort;
+	vector < pair <string, int> >::iterator sortIter;
 	ifstream indata;
+
+	struct compareClass1 {
+	  bool operator() (pair<string, int> pair1,pair<string, int> pair2) {
+		  return pair1.second > pair2.second;
+	  }
+	} valueComparator;
+	struct compareClass2 {
+	  bool operator() (pair<string, int> pair1,pair<string, int> pair2) {
+		  return pair1.first < pair2.first;
+	  }
+	} keyComparator;
+
 	char c;
 	int i = 0, currLength = 0;
 	char buffer[1000];
@@ -60,9 +76,35 @@ int main(int argc, char **argv) {
 		memset(buffer, '\0', 1000);
 	}
 
+
+
 	for (it = amount.begin(); it != amount.end(); it++) {
-		cout << it->first << " " << it->second << endl;
+		forSort.push_back(make_pair(it->first, it->second));
 	}
+
+	std::sort(forSort.begin(), forSort.end(), valueComparator);
+
+
+	int prevAmount = 0;
+	vector < pair <string, int> >::iterator prevIter;
+
+	for (sortIter = forSort.begin(); sortIter != forSort.end(); sortIter++) {
+		if (prevAmount == 0) {
+			prevAmount = sortIter->second;
+			prevIter = sortIter;
+		} else if (sortIter->second != prevAmount) {
+			std::sort(prevIter, sortIter, keyComparator);
+			prevAmount = sortIter->second;
+			prevIter=sortIter;
+		}
+	}
+	std::sort(prevIter, sortIter, keyComparator);
+
+	for (sortIter = forSort.begin(); sortIter != forSort.end(); sortIter++) {
+				cout << sortIter->first << " " << sortIter->second << endl;
+			}
+
+
 	indata.close();
 	return 0;
 }
