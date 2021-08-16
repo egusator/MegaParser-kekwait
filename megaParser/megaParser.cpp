@@ -14,11 +14,14 @@ int main(int argc, char **argv) {
 	ifstream indata;
 	char c;
 	int i = 0, currLength = 0;
-	string buffer;
+	char buffer[1000];
 	string::iterator strIt;
-	string currentWord;
+	char currentWord[1000];
+	string word;
 	string inputFileName;
 
+	memset(buffer, '\0', 1000);
+	memset(currentWord, '\0', 1000);
 	if (argc != 2) {
 		printf("\n using: %s <input-file-name> \n", argv[0]);
 		return 1;
@@ -32,39 +35,35 @@ int main(int argc, char **argv) {
 		cerr << "Error: file could not be opened" << endl;
 		exit(1);
 	}
-	cout << buffer.length() << endl;
+
 	while (!indata.eof()) {
 
-		indata >> buffer;
-		for (i = 0; i < buffer.length();i++) {
+		indata.getline(buffer, 1000);
+		buffer[strlen(buffer)] = ' ';
+		for (i = 0; i < strlen(buffer); i++) {
 			c = buffer[i];
 			if (isalpha(c)) {
-				currentWord[currLength++] = c;
-				cout << currentWord << endl;
+				currentWord[currLength++] = toupper(c);
 			} else {
-				it = amount.find(currentWord);
+				string str((currentWord));
+				if ( str.length()>0 ) {
+				it = amount.find(str);
 				if (it != amount.end())
 					it->second += 1;
 				else
-					amount.insert( { currentWord, 0 });
+					amount.insert(it, make_pair(str, 1));
 				currLength = 0;
-				cout<<"ya govno"<<endl;
+				memset(currentWord, '\0', 1000);
+				}
 			}
-			i = 0;
-
 		}
+		memset(buffer, '\0', 1000);
 	}
-	it = amount.find(currentWord);
-	if (it != amount.end())
-		it->second += 1;
-	else
-		amount.insert( { currentWord, 0 });
-	for(it = amount.begin(); it != amount.end(); it++) {
+
+	for (it = amount.begin(); it != amount.end(); it++) {
 		cout << it->first << " " << it->second << endl;
 	}
-
 	indata.close();
-	//cout << "End-of-file reached.." << endl;
 	return 0;
 }
 
